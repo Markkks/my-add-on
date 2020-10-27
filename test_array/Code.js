@@ -13,14 +13,27 @@ function showPrompt() {
   var ui = SpreadsheetApp.getUi(); 
   var activeSpreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var activeSheet = activeSpreadSheet.getActiveSheet();
-  var activeRange = activeSheet.getRange("A1:D4");
-  var outputRange = activeSheet.getRange("A7:D10");
+  var activeRange = activeSheet.getDataRange(); //get all valid cell in a sheet
+  var outputRange = findOutputRange(activeRange);
+
   var allArray = activeRange.getValues();
   var newArray = allArray[0].map(function (col, i) {
     return allArray.map(function (row) {
       return row[i];
     }) 
   });
-  outputRange.setValues(newArray);
+  outputRange.setValues(allArray);
   //ui.alert('Hello World with little difference!'); //弹窗显示Hello World!
+}
+
+function findOutputRange(inputRange) { 
+  var activeSpreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  var activeSheet = activeSpreadSheet.getActiveSheet();
+  
+  var inputHeight = inputRange.getHeight();
+  var inputWidth = inputRange.getWidth();
+  var outputRow = inputRange.getRow();
+  var outputColumn = activeSheet.getDataRange().getWidth() + 2;
+
+  return activeSheet.getRange(outputRow, outputColumn, inputHeight, inputWidth);
 }
