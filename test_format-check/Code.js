@@ -45,7 +45,7 @@ function getInputRange() {
   return "";
 }
 
-function findOutputRange(inputRange) { 
+function findOutputRange(inputRange) {
   var activeSpreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var activeSheet = activeSpreadSheet.getActiveSheet();
   
@@ -55,4 +55,14 @@ function findOutputRange(inputRange) {
   var outputColumn = activeSheet.getDataRange().getWidth() + 1;
 
   return activeSheet.getRange(outputRow, outputColumn, inputHeight, inputWidth);
+}
+
+function formatcheck(str){
+  var pattern = new RegExp("[\u4E00-\u9FA5]+");
+  var pattern2 = new RegExp("[A-Za-z]+");
+  var pattern3 = new RegExp("[0-9]+");
+  var pattern_n = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>《》/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]");
+  if(pattern.test(str)){
+    alert('该字符串是中文');
+  }
 }
