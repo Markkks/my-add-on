@@ -43,7 +43,7 @@ function test_tran(){
 
 //英文翻译为中文
 function trans(text){
-  var result = LanguageApp.translate(text,'en','zh-CN');
+  var result = LanguageApp.translate(text,'en','zh-CN');//简中zh-CN，繁中zh-TW，英文en。
   return result;
 }
 
