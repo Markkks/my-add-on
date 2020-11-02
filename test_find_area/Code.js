@@ -118,3 +118,51 @@ function match_address(pro= [{"n": "北京","i": 11,"p": 0,"y": "b"}],city=[{"n"
 
   return false;
 }
+
+function test_formatcheck(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var range = ss.getRange(2, 2);
+  var tran_result = formatcheck('HongKong');
+  if(tran_result == false){
+    range.setValue('Fail');
+  }
+  else{
+    range.setValue(tran_result.Ch);
+  }
+}
+
+function formatcheck(str){
+  var patt_cn = new RegExp("[\u4E00-\u9FA5]+"); //简体中文繁体中文
+  var patt_en = new RegExp("[A-Za-z]+"); //英文
+  var patt_num = new RegExp("[0-9]+"); //数字
+  var patt_sym = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>《》/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]"+"[\uFFF0-\uFFFF]+"); //符号
+
+  if(patt_num.test(str)||patt_sym.test(str)){
+    return false;
+  }
+  if(patt_cn.test(str)&&patt_en.test(str)){
+    return false;
+  }
+
+  if(patt_cn.test(str)){
+    var trans = LanguageApp.translate(str,'zh-TW','zh-CN');//简中zh-CN，繁中zh-TW，英文en。
+    if(trans==str){
+      var lan = '简中';
+    }
+    else{
+      var lan = '繁中';
+    }
+  }
+  if(patt_en.test(str)){
+    var trans = LanguageApp.translate(str,'en','zh-CN');
+    var lan = 'Eng';
+  }
+
+  if(patt_cn.test(trans)){
+    var result = {"Ori":str,"Lan":lan,"Ch":trans};
+    return result;
+  }
+  else{
+    return false;
+  }
+}
