@@ -17,6 +17,8 @@ function showPrompt() {
   var outputRange = findOutputRange(activeRange);
 
   var allArray = activeRange.getValues();
+
+  //数组转置
   var newArray = allArray[0].map(function (col, i) {
     return allArray.map(function (row) {
       return row[i];

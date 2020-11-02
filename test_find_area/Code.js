@@ -135,7 +135,7 @@ function formatcheck(str){
   var patt_cn = new RegExp("[\u4E00-\u9FA5]+"); //简体中文繁体中文
   var patt_en = new RegExp("[A-Za-z]+"); //英文
   var patt_num = new RegExp("[0-9]+"); //数字
-  var patt_sym = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>《》/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]"+"[\uFFF0-\uFFFF]+"); //符号
+  var patt_sym = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>《》/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？\uFFF0-\uFFFF]+"); //符号
 
   if(patt_num.test(str)||patt_sym.test(str)){
     return false;
