@@ -87,3 +87,34 @@ function findPosition(originText){
   
   return originText;
 }
+
+function test_match_address(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var range = ss.getRange(1, 4);
+  if(match_address()){
+    range.setValue('success');
+  }
+}
+
+//确定编码是否匹配--省市区包含关系
+//parameter: province,city,area
+function match_address(pro= [{"n": "北京","i": 11,"p": 0,"y": "b"}],city=[{"n": "北京","i": 1101,"p": 11,"y": "b"}],area=[{"n": "东城","i": 110101,"p": 1101,"y": "d"}]){
+  pro = [{"n": "北京","i": 11,"p": 0,"y": "b"}];
+  city = [{"n": "北京","i": 1101,"p": 11,"y": "b"}];
+  area = [{"n": "东城","i": 110101,"p": 1101,"y": "d"}];
+  len_pro = pro.length;
+  len_city = city.length;
+  len_area = area.length;
+
+  for (var l=0; l<len_pro; l++){
+    for(var j=0; j<len_city; j++){
+      for(var k=0; k<len_area; k++){
+        if(pro[l].p==0 && pro[l].i==city[j].p && city[j].i==area[k].p){
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
