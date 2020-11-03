@@ -6,6 +6,19 @@ function onOpen(e){
 }
 
 function start(){
+  var ss = SpreadsheetApp.getActiveSheet()
+  ss.insertSheet();
+  ss.setName("Test Result");
+
+  var allRange = ss.getDataRange();//get all valid cell in a sheet
+  var allData = allRange.getValues();
+
+  var row_l = allData.length;
+  var col_l = allData[0].length;
+
+}
+
+function start_ori(){
   var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
   var range = ss.getRange(2, 2);
@@ -59,23 +72,24 @@ function findPosition(originText){
   var text1 = '省';
   var text2 = '市';
   var text3 = '区';
-  var all_text = [text1,text2,text3];
+  var text4 = '县';
+  var all_text = [text1,text2,text3,text4];//省市区县字样
   var result_n = [0,0,0];
 
-  for (var i=0; i<3; i++)
+  for (var i=0; i<4; i++)
   {
     n = originText.indexOf(all_text[i]);
     result_n[i] = n;
   }
 
-  if(result_n == [-1,-1,-1]){
+  if(result_n == [-1,-1,-1,-1]){
     return originText;
   }//[-1,-1,-1]指没有相应字样
 
-  for (var i=0; i<3; i++)
+  for (var i=0; i<4; i++)
   {
     if(result_n[i]==0){return originText;}
-  }//0指对应字样（省市区）位于第一个
+  }//0指对应字样（省市区县）位于第一个
 
   for (var i=0; i<3; i++)
   {

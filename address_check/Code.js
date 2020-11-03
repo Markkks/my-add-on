@@ -10,6 +10,16 @@ function onOpen(e) {
 }
 
 function start(){
+  var ss = SpreadsheetApp.getActiveSheet()
+  ss.insertSheet();
+  ss.setName("Test Result");
+
+  var allRange = ss.getDataRange();//get all valid cell in a sheet
+  var allData = allRange.getValues();
+
+  var row_l = allData.length;
+  var col_l = allData[0].length;
+
 }
 
 //格式校验，区分乱码、拼音、繁中、简中
