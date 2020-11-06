@@ -14,17 +14,20 @@ function showPrompt() {
   var activeSpreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var activeSheet = activeSpreadSheet.getActiveSheet();
   var activeRange = activeSheet.getDataRange(); //get all valid cell in a sheet
-  var outputRange = findOutputRange(activeRange);
+  // var outputRange = findOutputRange(activeRange);
 
-  var allArray = activeRange.getValues();
+  // var allArray = activeRange.getValues();
 
   //数组转置
-  var newArray = allArray[0].map(function (col, i) {
-    return allArray.map(function (row) {
-      return row[i];
-    }) 
-  });
-  outputRange.setValues(allArray);
+  // var newArray = allArray[0].map(function (col, i) {
+  //   return allArray.map(function (row) {
+  //     return row[i];
+  //   }) 
+  // });
+  //outputRange.setValues(allArray);
+  var emp_array = ["a","b","c","d"]
+  var outrange = activeSheet.getRange(1,1);
+  outrange.setValues(emp_array);
 }
 
 function findOutputRange(inputRange) { 
