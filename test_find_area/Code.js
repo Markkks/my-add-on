@@ -9,58 +9,100 @@ function start(){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var source = ss.getSheetByName('sheet1');
 
-  var allRange = source.getDataRange(); //get all valid cell in a sheet
-  var allData =allRange.getValues();
+  var aRange = source.getDataRange(); //get all valid cell in a sheet
+  var aData =aRange.getValues();
 
   //ss.insertSheet().setName('Test Result'); //添加一个新sheet
-  var outsheet = ss.getSheetByName('Test Result')
+  var outsheet = ss.getSheetByName('Test Result');
 
-  var row_l = allData.length;
+  var row_l = aData.length;
   //var col_l = allData[0].length;
+
+  var allRange = source.getRange(1,1,row_l,4)
+  var allData = allRange.getValues();
 
   //var titlerange = source.getRange(1,1,1,4);
   allRange.copyTo(outsheet.getRange(1,1));
 
-  outsheet.getRange(1,5).setValue("标注");
+  var outData = [["标注"]];
+  var enErr = ["非香港地区填写英文/拼音"];
+  var cnErr = ["繁体字"];
+  var symErr = ["乱码，特殊符号"];
+  var noErr = ["非CN地址"];
+  var maErr = ["省市区匹配关系错误"];
+  var emErr = ["地址为空"];
+  var right = [""];
+  //outsheet.getRange(1,5).setValue("标注");
 
 //模板要求v0.1：标题在第一行，每行有四列信息：省、市、区、详细地址
-  for(var i=2; i<row_l+1; i++){
-    var markrange = outsheet.getRange(i,5);
+  for(var i=1; i<row_l; i++){
+    //var markrange = outsheet.getRange(i,5);
     //var fixrange = outsheet.getRange(i,6);
     var state_info = [];
     var city_info = [];
     var district_info = [];
 
-    for(var j=1;j<4;j++){
-      var city = outsheet.getRange(i,j).getValue();
+    for(var j=0;j<3;j++){
+      var city = allData[i][j];
+      if(city == ""){
+        outData.push(emErr);
+        break;
+      }
       var check_result = formatcheck(city);
 
       if(check_result == false){
-        markrange.setValue("乱码，特殊符号");
+        //markrange.setValue("乱码，特殊符号");
+        outData.push(symErr);
         break;
       }
 
-      var city_fix = findPosition(check_result.Ch);
+      //香港地址的校验-英/中
+      if(check_result=="Hongkong"&&j==0){
+        if(allData[i][j+1]==""||allData[i][j+2]==""){//校验后两个单元格是否为空
+          outData.push(emErr);
+          break;
+        }
+
+        HK_state = translate_en(allData[i][j]);
+        HK_city = translate_en(allData[i][j+1]);
+        HK_dist = translate_en(allData[i][j+2]);
+        
+        HK_result = check_HK(HK_state,HK_city,HK_dist);
+        if(HK_result==true){
+          outData.push(right);
+          break;
+        }
+        else if(HK_result=="noMatch"){
+          outData.push(noErr);
+          break;
+        }
+        else{
+          outData.push(maErr);
+          break;
+        }
+      }
+
+      if(check_result=="Eng"){
+        //markrange.setValue("非香港地区填写英文/拼音")
+        outData.push(enErr);
+        break;
+      }
+      
+      //中文地址校验
+      var city_fix = findPosition(city);
       var match_city = findcity.getCity(city_fix);
 
       if(match_city == ''){
-        markrange.setValue("非CN地址");
+        //markrange.setValue("非CN地址");
+        outData.push(noErr);
         break;
       }
 
-      if(markrange.getValue()==''&&state_info[0]!="香港"&&check_result.Ch!="香港"){//香港地区可以填写英文
-        if(check_result.Lan=='繁中'){
-          markrange.setValue("繁体字");
-        }
-        else if(check_result.Lan=="Eng"&&check_result.Ch!="香港"){
-          markrange.setValue("非香港地区填写英文/拼音")
-        }
-      }
       
-      if(j==1){
+      if(j==0){
         state_info = match_city;
       }
-      else if(j==2){
+      else if(j==1){
         city_info = match_city;
       }
       else{
@@ -68,79 +110,54 @@ function start(){
       }
     }
 
-    if(markrange.getValue()=="乱码，特殊符号"||markrange.getValue()=="非CN地址"){
+    if(outData.length == i+1){//除中文地址外的结果
       continue;
     }
 
     if(match_address(state_info,city_info,district_info)){
-      continue;//未进行纠正
+      outData.push(right);
     }
     else{
-      markrange.setValue("省市区匹配关系错误");
+      //markrange.setValue("省市区匹配关系错误");
+      outData.push(maErr);
     }
     
   }
+
+  var outRange = outsheet.getRange(1,5,row_l,1);
+  outRange.setValues(outData);
 
 }
 
-function start_ori(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var outsheet = ss.getSheetByName('Test Result')
+//校验香港地址--英/中
+function check_HK(state,city,area){
+  state_fix = findPosition(state);
+  city_fix = findPosition(city);
+  area_fix = area;
 
-  var i = 14;
-  var markrange = outsheet.getRange(i,6);
-  var state_info = [];
-  var city_info = [];
-  var district_info = [];
-  //var range = ss.getRange(2, 7);
+  state_info = findcity.getCity(state_fix);
+  city_info = findcity.getCity(city_fix);
+  area_info = findcity.getCity(area_fix);
 
-  // var find_bj = findcity.getCity('南山')   //getCity为library中的函数
-  // if(find_bj == ''){
-  //   range.setValue('match failed');
-  // }//匹配失败
-  // else{
-  //   range.setValue(find_bj[0].i);
-  // }
-
-  for(var j=1;j<4;j++){
-    var city = outsheet.getRange(i,j).getValue();
-    var check_result = formatcheck(city);
-
-    if(check_result == false){
-      markrange.setValue("乱码，特殊符号");
-      break;
-    }
-
-    var city_fix = findPosition(check_result.Ch);
-    var match_city = findcity.getCity(city_fix);
-
-    if(match_city == ''){
-      markrange.setValue("非CN地址");
-      break;
-    }
-
-    if(markrange.getValue()==''&&state_info[0]!="香港"&&check_result.Ch!="香港"){//香港地区可以填写英文
-      if(check_result.Lan=='繁中'){
-        markrange.setValue("繁体字");
-      }
-      else if(check_result.Lan=="Eng"&&check_result.Ch!="香港"){
-        markrange.setValue("非香港地区填写英文/拼音")
-      }
-    }
-    
-    if(j==1){
-      state_info = match_city;
-      outsheet.getRange(i,7).setValue(state_info[0].i);
-    }
-    else if(j==2){
-      city_info = match_city;
-      outsheet.getRange(i,8).setValue(city_info[0].i);
-    }
-    else{
-      district_info = match_city;
-      outsheet.getRange(i,9).setValue(district_info[0].i);
-    }
+  if(city_info==""||area_info==""){
+    return "noMatch";
   }
+  
+  if(match_address(state_info,city_info,area_info)){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+function test_getcity(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var source = ss.getSheetByName('sheet5');
+  var arange = source.getRange(2,2);
+  var test_city = "北京市";
+  var test_result = findcity.getCity(test_city);
+  arange.setValue(test_result[0].n);
 }
 
 function getCityByName(n) {
@@ -155,16 +172,22 @@ function getCityByName(n) {
   );
 }
 
-function test_tran(){
-  var tran_result = trans('henan');
-  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var range = ss.getRange(5,5);
-  range.setValue(tran_result);
+//英文翻译为中文
+function translate_en(text){
+  var result = LanguageApp.translate(text,'en','zh-CN');//简中zh-CN，繁中zh-TW，英文en。
+  Utilities.sleep(50);
+  if(result == "粤"){
+    return "广东";
+  }
+  else{
+    return result;
+  }
 }
 
-//英文翻译为中文
-function trans(text){
-  var result = LanguageApp.translate(text,'en','zh-CN');//简中zh-CN，繁中zh-TW，英文en。
+//繁中翻译为简中
+function translate_cn(text){
+  var result = LanguageApp.translate(text,'zh-TW','zh-CN');//简中zh-CN，繁中zh-TW，英文en。
+  Utilities.sleep(50);
   return result;
 }
 
@@ -177,6 +200,9 @@ function text_findPosition(){
 
 //去除省市区字样，北京市->北京
 function findPosition(originText){
+  if(originText.length==2){
+    return originText;
+  }
   var all_text = ['省','市','区','县','區','縣'];//省市区县字样
   var result_n = [0,0,0,0,0,0];
 
@@ -258,25 +284,33 @@ function formatcheck(str){
     return false;
   }
 
-  if(patt_cn.test(str)){
-    var trans = LanguageApp.translate(str,'zh-TW','zh-CN');//简中zh-CN，繁中zh-TW，英文en。
-    if(trans==str){
-      var lan = '简中';
+  // if(patt_cn.test(str)){
+  //   var trans = LanguageApp.translate(str,'zh-TW','zh-CN');//简中zh-CN，繁中zh-TW，英文en。
+  //   if(trans==str){
+  //     var lan = '简中';
+  //   }
+  //   else{
+  //     var lan = '繁中';
+  //   }
+  // }
+  // if(patt_en.test(str)){
+  //   var trans = translate_en(str);
+  //   var lan = 'Eng';
+  // }
+
+  if(patt_en.test(str)){
+    var trans = translate_en(str);
+    if(trans=="香港"){
+      return "Hongkong";
     }
     else{
-      var lan = '繁中';
+      return "Eng";
     }
   }
-  if(patt_en.test(str)){
-    var trans = LanguageApp.translate(str,'en','zh-CN');
-    var lan = 'Eng';
+
+  if(patt_cn.test(str)){
+    return "Chi";
   }
 
-  if(patt_cn.test(trans)){
-    var result = {"Ori":str,"Lan":lan,"Ch":trans};
-    return result;
-  }
-  else{
-    return false;
-  }
+  return false;
 }
