@@ -7,7 +7,7 @@ function onOpen(e){
 
 function start(){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var source = ss.getSheetByName('sheet1');
+  var source = ss.getSheetByName('sheet4');
 
   var aRange = source.getDataRange(); //get all valid cell in a sheet
   var aData =aRange.getValues();
@@ -18,7 +18,7 @@ function start(){
   var row_l = aData.length;
   //var col_l = allData[0].length;
 
-  var allRange = source.getRange(1,1,row_l,4)
+  var allRange = source.getRange(1,11,row_l,4)
   var allData = allRange.getValues();
 
   //var titlerange = source.getRange(1,1,1,4);
@@ -26,15 +26,17 @@ function start(){
 
   var outData = [["标注"]];
   var enErr = ["非香港地区填写英文/拼音"];
-  var cnErr = ["繁体字"];
+  //var cnErr = ["繁体字"];
   var symErr = ["乱码，特殊符号"];
   var noErr = ["非CN地址"];
   var maErr = ["省市区匹配关系错误"];
   var emErr = ["地址为空"];
+  var inErr = ["填写不规范"];
   var right = [""];
   //outsheet.getRange(1,5).setValue("标注");
 
 //模板要求v0.1：标题在第一行，每行有四列信息：省、市、区、详细地址
+  var col_pos = 10;
   for(var i=1; i<row_l; i++){
     //var markrange = outsheet.getRange(i,5);
     //var fixrange = outsheet.getRange(i,6);
@@ -58,7 +60,7 @@ function start(){
 
       //香港地址的校验-英/中
       if(check_result=="Hongkong"&&j==0){
-        if(allData[i][j+1]==""||allData[i][j+2]==""){//校验后两个单元格是否为空
+        if(allData[i][j+11+1]==""||allData[i][j+11+2]==""){//校验后两个单元格是否为空
           outData.push(emErr);
           break;
         }
@@ -98,6 +100,14 @@ function start(){
         break;
       }
 
+      if(j==0&&city.length>10){
+        outData.push(inErr);
+        break;
+      }
+      else if(j!=0&&city_fix.length>=6){
+        outData.push(inErr);
+        break;
+      }
       
       if(j==0){
         state_info = match_city;
@@ -170,6 +180,15 @@ function getCityByName(n) {
       return iter.n == n
     }
   );
+}
+
+function test_translate(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var source = ss.getSheetByName('sheet5');
+  var arange = source.getRange(2,3);
+  var test_city = "Kowloon";
+  var test_result = translate_en(test_city);
+  arange.setValue(test_result);
 }
 
 //英文翻译为中文
@@ -249,7 +268,7 @@ function match_address(pro,city,area){
   for (var l=0; l<len_pro; l++){
     for(var j=0; j<len_city; j++){
       for(var k=0; k<len_area; k++){
-        if(pro[l].p==0 && pro[l].i==city[j].p && city[j].i==area[k].p){
+        if(pro[l].i==city[j].p && city[j].i==area[k].p){
           return true;
         }
       }
@@ -267,7 +286,7 @@ function test_formatcheck(){
     range.setValue('Fail');
   }
   else{
-    range.setValue(tran_result.Ch);
+    range.setValue(tran_result);
   }
 }
 
