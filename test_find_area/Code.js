@@ -1,19 +1,63 @@
-function onOpen(e){
-  SpreadsheetApp.getUi()
-      .createMenu('test')
-      .addItem('start', 'start')
+// function onOpen(e){
+//   SpreadsheetApp.getUi()
+//       .createMenu('test')
+//       .addItem('start', 'start')
+//       .addToUi();
+// }
+
+function onOpen(e) {
+  var ui = SpreadsheetApp.getUi();
+  ui.createAddonMenu()
+      .addItem("Start", 'showPrompt')
       .addToUi();
 }
 
-function start(){
+function onInstall(e) {
+  onOpen(e);
+}
+
+function showPrompt() {
+  var ui = SpreadsheetApp.getUi(); // Same variations.
+  var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+
+  var result = ui.prompt(
+      "省市区校验",
+      "请输入需要校验的sheet名称",
+      ui.ButtonSet.OK_CANCEL);
+
+  // Process the user's response.
+  var button = result.getSelectedButton();
+  var text = result.getResponseText();
+  if (button == ui.Button.OK) {
+    // User clicked "OK".
+    sheet_name = text;
+    var allsheets_name = new Array();
+    for(var i=0;i<sheets.length;i++){
+      allsheets_name.push(sheets[i].getName());
+    }
+    if(allsheets_name.includes(sheet_name)){
+      ui.alert("开始处理，请稍后！")
+      start(sheet_name);
+    }
+    else{
+      ui.alert("输入的sheet名称在当前文件中不存在！")
+    }
+    
+  }
+}
+
+//模板要求v0.5：标题在第一行，省、市、区、详细地址分别在11，12，13，14行
+function start(name){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var source = ss.getSheetByName('sheet4');
+  var source = ss.getSheetByName(name);
 
   var aRange = source.getDataRange(); //get all valid cell in a sheet
   var aData =aRange.getValues();
 
-  //ss.insertSheet().setName('Test Result'); //添加一个新sheet
-  var outsheet = ss.getSheetByName('Test Result');
+  new_sheet_name = 'Test Result of '+ name;
+
+  ss.insertSheet().setName(new_sheet_name); //添加一个新sheet
+  var outsheet = ss.getSheetByName(new_sheet_name);
 
   var row_l = aData.length;
   //var col_l = allData[0].length;
@@ -35,7 +79,6 @@ function start(){
   var right = [""];
   //outsheet.getRange(1,5).setValue("标注");
 
-//模板要求v0.1：标题在第一行，每行有四列信息：省、市、区、详细地址
   var col_pos = 10;
   for(var i=1; i<row_l; i++){
     //var markrange = outsheet.getRange(i,5);
