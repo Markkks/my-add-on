@@ -62,11 +62,14 @@ function start(name){
   var row_l = aData.length;
   //var col_l = allData[0].length;
 
-  var allRange = source.getRange(1,11,row_l,4)
+  var id_range = source.getRange(1,1,row_l,1);
+
+  var allRange = source.getRange(1,11,row_l,4);
   var allData = allRange.getValues();
 
   //var titlerange = source.getRange(1,1,1,4);
-  allRange.copyTo(outsheet.getRange(1,1));
+  id_range.copyTo(outsheet.getRange(1,1));
+  allRange.copyTo(outsheet.getRange(1,2));
 
   var outData = [["标注"]];
   var enErr = ["非香港地区填写英文/拼音"];
@@ -143,14 +146,19 @@ function start(name){
         break;
       }
 
-      if(j==0&&city.length>10){
+      if(!city.includes("自治")&&city.length>=8){
         outData.push(inErr);
-        break;
+        break;        
       }
-      else if(j!=0&&city_fix.length>=6){
-        outData.push(inErr);
-        break;
-      }
+
+      // if(j==0&&city.length>10){
+      //   outData.push(inErr);
+      //   break;
+      // }
+      // else if(j!=0&&city_fix.length>=8){
+      //   outData.push(inErr);
+      //   break;
+      // }
       
       if(j==0){
         state_info = match_city;
@@ -177,7 +185,7 @@ function start(name){
     
   }
 
-  var outRange = outsheet.getRange(1,5,row_l,1);
+  var outRange = outsheet.getRange(1,6,row_l,1);
   outRange.setValues(outData);
 
 }

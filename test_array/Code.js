@@ -10,7 +10,6 @@ function onOpen(e) {
 }
 
 function showPrompt() {
-  var ui = SpreadsheetApp.getUi(); 
   var activeSpreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var activeSheet = activeSpreadSheet.getActiveSheet();
   var activeRange = activeSheet.getDataRange(); //get all valid cell in a sheet
@@ -25,9 +24,11 @@ function showPrompt() {
   //   }) 
   // });
   //outputRange.setValues(allArray);
-  var emp_array = ["a","b","c","d"]
+  var emp_array = ["非CN地址","b","c","d"];
+  var err_position = ["，State栏出现错误","，City栏出现错误","，District栏出现错误"];
+  var new_str = emp_array[0].concat(err_position[1]);
   var outrange = activeSheet.getRange(1,1);
-  outrange.setValues(emp_array);
+  outrange.setValue(new_str);
 }
 
 function findOutputRange(inputRange) { 
