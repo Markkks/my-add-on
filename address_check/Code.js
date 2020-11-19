@@ -291,19 +291,20 @@ function match_address(pro,city,area){
   len_city = city.length;
   len_area = area.length;
   var result = "State匹配成功";
+  var result2 = "匹配失败";
   for (var l=0; l<len_pro; l++){
     for(var j=0; j<len_city; j++){
       if(pro[l].p == 0 && pro[l].i==city[j].p){
         result = "city匹配成功";
         for(var k=0; k<len_area; k++){
           if(city[j].i==area[k].p){
-            result = "匹配成功";
+            result2 = "匹配成功";
           }
         }
       }
     }
   }
-  if(result == "匹配成功"){
+  if(result2 == "匹配成功"){
     return true;
   }
   else if(result == "city匹配成功"){
@@ -355,7 +356,14 @@ function formatcheck(str){
   // }
 
   if(patt_en.test(str)){
-    var trans = translate_en(str);//最好不要调用此功能，运行时有限制
+    //var trans = translate_en(str);//最好不要调用此功能，运行时有限制
+    if(str == "Hongkong"||str == "Hong Kong"){
+      var trans = "香港";
+    }
+    else{
+      var trans = str;
+    }
+
     if(trans=="香港"){
       return "Hongkong";
     }
