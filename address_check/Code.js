@@ -12,6 +12,13 @@ function onInstall(e) {
 function showPrompt() {
   var ui = SpreadsheetApp.getUi(); // Same variations.
   var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+  if(!checkDate()){
+    ui.alert(
+        "此Add_on已到期",
+        "如有问题请联系CNSP部门TS团队Marks (邮箱地址：yiming.chen@shopee.com) 或其他同事",
+        ui.ButtonSet.OK);
+    return 0;
+  }
 
   var result = ui.prompt(
       "省市区校验",
@@ -36,6 +43,18 @@ function showPrompt() {
       ui.alert("输入的sheet名称在当前文件中不存在！")
     }
     
+  }
+}
+
+function checkDate(){
+  var ui = SpreadsheetApp.getUi(); 
+  var today = Utilities.formatDate(new Date(), "GMT+8", "yyyy-MM-dd' 'HH:mm:ss");
+  var endDate = Utilities.formatDate(new Date("2021-02-01 00:00:00"), "GMT+8", "yyyy-MM-dd' 'HH:mm:ss");
+  if(today>endDate){
+    return false;
+  }
+  else{
+    return true;
   }
 }
 
