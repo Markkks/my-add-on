@@ -17,8 +17,8 @@ function start() {
   
   var all_item = item_sheet.getDataRange().getValues();
   var item_rows = all_item.length;
-  var item_name = item_sheet.getRange(2,1,item_rows-1,1).getValues;
-  var item_shopid = item_sheet.getRange(2,2,item_rows-1,1).getValues;
+  var item_name = item_sheet.getRange(2,1,item_rows-1,1).getValues();
+  var item_shopid = item_sheet.getRange(2,2,item_rows-1,1).getValues();
   
   var brand_name_low = new Array();
   var check_result = new Array();
@@ -30,7 +30,6 @@ function start() {
   }
 
   for(var j=0;j<item_name.length;j++){
-    var brand_result = new Array();
     var low_item = item_name[j][0].toLowerCase();
     //result(string) --> all brand_name in item_name
     var result = brand_name_low.filter(
@@ -51,6 +50,8 @@ function start() {
       }
     );
 
+    var item_brand_result = new Array();
+
     for(var h=0;h<result.length;h++){
       a_result = result[h];
       var brand_ind = brand_name_low.findIndex(
@@ -58,12 +59,34 @@ function start() {
           return a_result == brand_name_low;
         }
       );
-      
+
+     brand_to_check = brand_name[brand_ind][0];
+
+     var own_brand = false;
+     for(var i=0;i<shop_info_in.length;i++){
+       if(brand_to_check == shop_info_in[i][3]){
+         own_brand = true;
+       }
+     }
+
+     if(own_brand){
+       continue;
+     }
+     else{
+       item_brand_result.push(brand_to_check);
+     }
     }
 
-
+    if(item_brand_result==empty){
+      check_result.push(empty);
+      continue;
+    }
+    else{
+      var one_check_result = item_brand_result.join();
+      check_result.push([one_check_result]);
+    }
   }
   
-  var outrange = sheet.getRange("E2:E8");
-  outrange.setValues(output);
+  var outrange = item_sheet.getRange(2,3,item_rows-1,1);
+  outrange.setValues(check_result);
 }
