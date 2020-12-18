@@ -1,10 +1,70 @@
-function start() {
+function onInstall(e) {
+  onOpen(e);
+}
+
+function onOpen(e) {
+  var ui = SpreadsheetApp.getUi();
+  ui.createAddonMenu()
+      .addItem("Begin", 'showPrompt')
+      .addToUi();
+}
+
+function showPrompt() {
+  var ui = SpreadsheetApp.getUi(); // Same variations.
+  var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+  if(!checkDate()){
+    ui.alert(
+        "此Add_on已到期",
+        "如有问题请联系CNCB OPS部门Reverse团队Craol (邮箱地址：carol.yan@shopee.com) ",
+        ui.ButtonSet.OK);
+    return 0;
+  }
+
+  var result = ui.prompt(
+      "仿牌校验",
+      "请输入需要校验的sheet名称",
+      ui.ButtonSet.OK_CANCEL);
+
+  // Process the user's response.
+  var button = result.getSelectedButton();
+  var text = result.getResponseText();
+  if (button == ui.Button.OK) {
+    // User clicked "OK".
+    sheet_name = text;
+    var allsheets_name = new Array();
+    for(var i=0;i<sheets.length;i++){
+      allsheets_name.push(sheets[i].getName());
+    }
+    if(allsheets_name.includes(sheet_name)){
+      ui.alert("开始处理，请稍后！");
+      start(sheet_name);
+    }
+    else{
+      ui.alert("输入的sheet名称在当前文件中不存在！")
+    }
+    
+  }
+}
+
+function checkDate(){
+  var ui = SpreadsheetApp.getUi(); 
+  var today = Utilities.formatDate(new Date(), "GMT+8", "yyyy-MM-dd' 'HH:mm:ss");
+  var endDate = Utilities.formatDate(new Date("2021-02-01 00:00:00"), "GMT+8", "yyyy-MM-dd' 'HH:mm:ss");
+  if(today>endDate){
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+
+function start(name) {
   var brand_ss = SpreadsheetApp.openById("1YhmH6w2tPQU2kcBq7d7qR_TakVNvfs8RbVJoqn4P7kc");
   var shop_ss = SpreadsheetApp.openById("1kP5qz_g22yn3sU-6FKMiXGgo5noFlQRz7n88WUgGSl0");
   
   var brand_sheet = brand_ss.getSheetByName("工作表1");
   var shop_sheet = shop_ss.getSheetByName("品牌授权书备案");
-  var item_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var item_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
   
   var all_brand = brand_sheet.getDataRange().getValues();
   var brand_rows = all_brand.length;
